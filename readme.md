@@ -10,6 +10,8 @@
 
 在config.py里配置好QMT的路径，以及资金账号，运行 python qmtServer.py 启动服务，其它机器使用qmtClient调用
 
+代码测试过，问题不大，有问题自己解决吧，就不过多演示了
+
     from qmtClient import qclient
     
     print('------------------------')
