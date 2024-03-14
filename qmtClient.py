@@ -1,6 +1,6 @@
 import grpc
-import trader.qmt.qmt_pb2 as qmt_pb2
-import trader.qmt.qmt_pb2_grpc as qmt_pb2_grpc
+import qmt_pb2
+import qmt_pb2_grpc
 
 class qmtClient():
     def __init__(self) -> None:
