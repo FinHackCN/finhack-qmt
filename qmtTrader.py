@@ -2,20 +2,42 @@ from xtquant.xttrader import XtQuantTrader, XtQuantTraderCallback
 from xtquant import xtconstant
 from xtquant import xtdata
 import time
+import qmtData
 
 def order_buy(xt_trader,account,code,amount,price=0,strategy="Finhack-QMT",remark="autoBuy"):
-    if price>0:
-        seq=xt_trader.order_stock_async(account, code, xtconstant.STOCK_BUY, 100, xtconstant.FIX_PRICE, price, strategy, remark)
+
+    if int(price)==9999:
+        info=qmtData.get_daily_info(code)
+        lastprice=info['close']
+        price=info['up_limit']
+        if lastprice*1.02<up_limit:
+            price=round(lastprice*1.02,2)
+        else:
+            price=round(up_limit,2)
+        seq=xt_trader.order_stock_async(account, code, xtconstant.STOCK_BUY, amount, xtconstant.FIX_PRICE, price, strategy, remark)
+    elif price>0:
+        seq=xt_trader.order_stock_async(account, code, xtconstant.STOCK_BUY, amount, xtconstant.FIX_PRICE, price, strategy, remark)
     else:
-        seq=xt_trader.order_stock_async(account, code, xtconstant.STOCK_BUY, 100, xtconstant.LATEST_PRICE, price, strategy, remark)
+        seq=xt_trader.order_stock_async(account, code, xtconstant.STOCK_BUY, amount, xtconstant.LATEST_PRICE, price, strategy, remark)
+    print(f"下单买入{code}共计{amount}股，挂单价{price}")
     return seq
 
 
 def order_sell(xt_trader,account,code,amount,price=0,strategy="Finhack-QMT",remark="autoSell"):
-    if price>0:
-        seq=xt_trader.order_stock_async(account, code, xtconstant.STOCK_SELL, 100, xtconstant.FIX_PRICE, price, strategy, remark)
+    if int(price)==-1:
+        info=qmtData.get_daily_info(code)
+        lastprice=info['close']
+        down_limit=info['down_limit']
+        if lastprice*0.98>down_limit:
+            price=round(lastprice*0.98,2)
+        else:
+            price=round(down_limit,2)
+        seq=xt_trader.order_stock_async(account, code, xtconstant.STOCK_SELL, amount, xtconstant.FIX_PRICE, price, strategy, remark)
+    elif price>0:
+        seq=xt_trader.order_stock_async(account, code, xtconstant.STOCK_SELL, amount, xtconstant.FIX_PRICE, price, strategy, remark)
     else:
-        seq=xt_trader.order_stock_async(account, code, xtconstant.STOCK_SELL, 100, xtconstant.LATEST_PRICE, price, strategy,remark)
+        seq=xt_trader.order_stock_async(account, code, xtconstant.STOCK_SELL, amount, xtconstant.LATEST_PRICE, price, strategy,remark)
+    print(f"下单卖出{code}共计{amount}股，挂单价{price}")
     return seq
 
 def query_orders(xt_trader,account):
@@ -40,10 +62,13 @@ def query_orders(xt_trader,account):
             #"direction":o.direction,
             #"offset_flag":o.offset_flag
         })
+    print("正在查询订单")
+    print(orders)
     return orders
 
 
 def cancel_orders(xt_trader,account):
+    print("取消订单")
     orders=query_orders(xt_trader,account)
     for order in orders:
         print(order)
@@ -53,11 +78,12 @@ def cancel_orders(xt_trader,account):
 
 
 def retry_orders(xt_trader,account):
+    print("重新挂单")
     orders=query_orders(xt_trader,account)
     for order in orders:
         if order['order_status'] not in [53,54,56,57,255]:
             print(order)
-            
+
             xt_trader.cancel_order_stock_async(account, order['order_id'])
             time.sleep(1)
             xt_trader.order_stock_async(account,order['stock_code'], order['order_type'], order['order_volume']-order['traded_volume'], xtconstant.LATEST_PRICE, order['price'], order['strategy_name'],order['order_remark'])

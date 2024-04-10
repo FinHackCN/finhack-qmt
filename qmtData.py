@@ -8,13 +8,16 @@ import json
 import random
 
 def get_price(code):
+    print(f"正在查询{code}当前价格")
     res = xtdata.get_full_tick([code])
     #print(res[code])        # {'timetag': '20240228 11:30:01', 'lastPrice': 1686, 'open': 1688.92, 'high': 1696.57, 'low': 1674.01, 'lastClose': 1689.5, 'amount': 3139981100, 'volume': 18649, 'pvolume': 1864909, 'stockStatus': 0, 'openInt': 13, 'settlementPrice': 0, 'lastSettlementPrice': 0, 'askPrice': [1688.5, 1688.53, 1688.84, 0, 0], 'bidPrice': [1686.12, 1686, 1685.26, 0, 0], 'askVol': [98, 3, 1, 0, 0], 'bidVol': [1, 1, 1, 0, 0]}
+    print(res[code]['lastPrice'])
     return (res[code]['lastPrice'])
 
 
 
 def get_daily_info(code):
+    print(f"正在查询{code}行情信息")
     quote=xtdata.get_full_tick([code])
     detail=xtdata.get_instrument_detail(code)
     info={
@@ -31,6 +34,7 @@ def get_daily_info(code):
           'up_limit':detail['UpStopPrice'],
           'down_limit':detail['DownStopPrice'],
     }
+    print(info)
     return info
 
 
